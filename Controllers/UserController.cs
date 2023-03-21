@@ -36,8 +36,6 @@ public class UserController : ControllerBase
     {
         var objectId = new ObjectId(id);
 
-        var userTask = this._userRepository.GetUserAsync(objectId);
-
         var user = await this._userRepository.GetUserAsync(objectId);
         if (user == null)
         {
