@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using MongoDbApp;
 using MongoDbApp.Repositories;
 

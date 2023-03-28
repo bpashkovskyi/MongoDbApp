@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using MongoDB.Bson;
 
-using MongoDbApp.Repositories;
-using MongoDbApp.ViewModels;
+using Repositories;
+using ViewModels;
 
 [Route("api/[controller]")]
 [ApiController]
