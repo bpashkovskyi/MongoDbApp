@@ -11,5 +11,8 @@ public class UserMapperProfile : Profile
     {
         this.CreateMap<User, UserListViewModel>();
         this.CreateMap<User, UserDetailsViewModel>();
+
+        this.CreateMap<UserCreateViewModel, User>();
+        this.CreateMap<UserUpdateViewModel, User>();
     }
 }
