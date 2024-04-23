@@ -1,6 +1,6 @@
-﻿namespace MongoDbApp.Model;
+﻿using MongoDB.Bson;
 
-using MongoDB.Bson;
+namespace MongoDbApp.Web.Model;
 
 public class User
 {

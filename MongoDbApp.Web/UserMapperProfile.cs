@@ -1,9 +1,9 @@
-﻿namespace MongoDbApp;
+﻿using AutoMapper;
 
-using AutoMapper;
+using MongoDbApp.Web.Model;
+using MongoDbApp.Web.ViewModels;
 
-using Model;
-using ViewModels;
+namespace MongoDbApp.Web;
 
 public class UserMapperProfile : Profile
 {

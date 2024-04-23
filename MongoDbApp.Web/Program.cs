@@ -1,15 +1,15 @@
 using Microsoft.Extensions.Options;
 
-using MongoDbApp;
-using MongoDbApp.Repositories;
-
 using StackExchange.Redis;
 
 using Microsoft.Extensions.Caching.Distributed;
 
 using MongoDB.Driver;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+using MongoDbApp.Web;
+using MongoDbApp.Web.Repositories;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
@@ -22,11 +22,11 @@ builder.Services.Configure<MongoDbSettings>(mongoDbSettings => builder.Configura
 
 builder.Services.AddScoped<IUserRepository, UserRepository>(serviceProvider =>
 {
-    MongoDbSettings mongoDbSettings = serviceProvider.GetService<IOptions<MongoDbSettings>>().Value;
-    MongoClient client = new MongoClient(mongoDbSettings.ConnectionString);
-    IMongoDatabase userDatabase = client.GetDatabase(mongoDbSettings.UserDatabaseName);
+    var mongoDbSettings = serviceProvider.GetService<IOptions<MongoDbSettings>>().Value;
+    var client = new MongoClient(mongoDbSettings.ConnectionString);
+    var userDatabase = client.GetDatabase(mongoDbSettings.UserDatabaseName);
 
-    IDistributedCache distributedCache = serviceProvider.GetService<IDistributedCache>();
+    var distributedCache = serviceProvider.GetService<IDistributedCache>();
 
     return new UserRepository(userDatabase, distributedCache);
 
@@ -50,7 +50,7 @@ builder.Services.AddStackExchangeRedisCache(
 builder.Services.AddAutoMapper(typeof(UserMapperProfile).Assembly);
 
 
-WebApplication app = builder.Build();
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

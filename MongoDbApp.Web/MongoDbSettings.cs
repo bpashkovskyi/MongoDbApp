@@ -1,4 +1,4 @@
-﻿namespace MongoDbApp;
+﻿namespace MongoDbApp.Web;
 
 public class MongoDbSettings
 {

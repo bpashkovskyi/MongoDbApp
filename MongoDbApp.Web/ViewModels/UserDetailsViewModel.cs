@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
 
-namespace MongoDbApp.ViewModels;
+namespace MongoDbApp.Web.ViewModels;
 
 public class UserDetailsViewModel
 {

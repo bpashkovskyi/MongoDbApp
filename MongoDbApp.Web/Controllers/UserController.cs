@@ -1,34 +1,33 @@
-﻿using MongoDbApp.Model;
-
-namespace MongoDbApp.Controllers;
-
-using AutoMapper;
+﻿using AutoMapper;
 
 using Microsoft.AspNetCore.Mvc;
 
 using MongoDB.Bson;
 
-using Repositories;
-using ViewModels;
+using MongoDbApp.Web.Model;
+using MongoDbApp.Web.Repositories;
+using MongoDbApp.Web.ViewModels;
+
+namespace MongoDbApp.Web.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IMapper _mapper;
+    private readonly IUserRepository userRepository;
+    private readonly IMapper mapper;
 
     public UserController(IUserRepository userRepository, IMapper mapper)
     {
-        this._userRepository = userRepository;
-        this._mapper = mapper;
+        this.userRepository = userRepository;
+        this.mapper = mapper;
     }
 
     [HttpGet]
     public async Task<List<UserListViewModel>> Get()
     {
-        List<User> users = await this._userRepository.GetAllUsersAsync();
-        List<UserListViewModel> usersListViewModels = this._mapper.Map<List<UserListViewModel>>(users);
+        var users = await this.userRepository.GetAllUsersAsync();
+        var usersListViewModels = this.mapper.Map<List<UserListViewModel>>(users);
 
         return usersListViewModels;
     }
@@ -36,15 +35,15 @@ public class UserController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(string id)
     {
-        ObjectId objectId = new ObjectId(id);
+        var objectId = new ObjectId(id);
 
-        User user = await this._userRepository.GetUserAsync(objectId);
+        var user = await this.userRepository.GetUserAsync(objectId);
         if (user == null)
         {
             return this.NotFound("User not found");
         }
 
-        UserDetailsViewModel userDetailsViewModel = this._mapper.Map<UserDetailsViewModel>(user);
+        var userDetailsViewModel = this.mapper.Map<UserDetailsViewModel>(user);
 
         return this.Ok(userDetailsViewModel);
     }
@@ -52,10 +51,10 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post(UserCreateViewModel userCreateViewModel)
     {
-        User user = this._mapper.Map<User>(userCreateViewModel);
-        await this._userRepository.AddUserAsync(user);
+        var user = this.mapper.Map<User>(userCreateViewModel);
+        await this.userRepository.AddUserAsync(user);
 
-        UserDetailsViewModel userDetailsViewModel = this._mapper.Map<UserDetailsViewModel>(user);
+        var userDetailsViewModel = this.mapper.Map<UserDetailsViewModel>(user);
 
         return this.Ok(userDetailsViewModel);
     }
@@ -63,10 +62,10 @@ public class UserController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Put(UserUpdateViewModel userUpdateViewModel)
     {
-        User user = this._mapper.Map<User>(userUpdateViewModel);
-        await this._userRepository.UpdateUserAsync(user);
+        var user = this.mapper.Map<User>(userUpdateViewModel);
+        await this.userRepository.UpdateUserAsync(user);
 
-        UserDetailsViewModel userDetailsViewModel = this._mapper.Map<UserDetailsViewModel>(user);
+        var userDetailsViewModel = this.mapper.Map<UserDetailsViewModel>(user);
 
         return this.Ok(userDetailsViewModel);
     }
@@ -74,7 +73,7 @@ public class UserController : ControllerBase
     [HttpPatch("name")]
     public async Task<IActionResult> UpdateName([FromBody] UserUpdateNameViewModel userUpdateNameViewModel)
     {
-        await this._userRepository.UpdateUserNameAsync(new ObjectId(userUpdateNameViewModel.Id), userUpdateNameViewModel.Name);
+        await this.userRepository.UpdateUserNameAsync(new ObjectId(userUpdateNameViewModel.Id), userUpdateNameViewModel.Name);
 
         return this.Ok();
     }
@@ -82,7 +81,7 @@ public class UserController : ControllerBase
     [HttpPatch("role")]
     public async Task<IActionResult> UpdateRole([FromBody] UserUpdateRoleViewModel userUpdateRoleViewModel)
     {
-        await this._userRepository.UpdateUserRoleAsync(new ObjectId(userUpdateRoleViewModel.Id), userUpdateRoleViewModel.Role);
+        await this.userRepository.UpdateUserRoleAsync(new ObjectId(userUpdateRoleViewModel.Id), userUpdateRoleViewModel.Role);
 
         return this.Ok();
     }
@@ -90,7 +89,7 @@ public class UserController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
-        await this._userRepository.DeleteUserAsync(new ObjectId(id));
+        await this.userRepository.DeleteUserAsync(new ObjectId(id));
 
         return this.NoContent();
     }

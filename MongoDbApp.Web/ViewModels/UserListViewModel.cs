@@ -1,6 +1,6 @@
-﻿namespace MongoDbApp.ViewModels;
+﻿using MongoDB.Bson;
 
-using MongoDB.Bson;
+namespace MongoDbApp.Web.ViewModels;
 
 public class UserListViewModel
 {

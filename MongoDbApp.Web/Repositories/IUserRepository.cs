@@ -1,8 +1,8 @@
-﻿namespace MongoDbApp.Repositories;
+﻿using MongoDB.Bson;
 
-using MongoDB.Bson;
+using MongoDbApp.Web.Model;
 
-using Model;
+namespace MongoDbApp.Web.Repositories;
 
 public interface IUserRepository
 {

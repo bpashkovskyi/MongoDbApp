@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MongoDbApp.ViewModels;
+namespace MongoDbApp.Web.ViewModels;
 
 public class UserUpdateViewModel
 {
