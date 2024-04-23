@@ -27,8 +27,8 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<List<UserListViewModel>> Get()
     {
-        var users = await this._userRepository.GetAllUsersAsync();
-        var usersListViewModels = this._mapper.Map<List<UserListViewModel>>(users);
+        List<User> users = await this._userRepository.GetAllUsersAsync();
+        List<UserListViewModel> usersListViewModels = this._mapper.Map<List<UserListViewModel>>(users);
 
         return usersListViewModels;
     }
@@ -36,15 +36,15 @@ public class UserController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(string id)
     {
-        var objectId = new ObjectId(id);
+        ObjectId objectId = new ObjectId(id);
 
-        var user = await this._userRepository.GetUserAsync(objectId);
+        User user = await this._userRepository.GetUserAsync(objectId);
         if (user == null)
         {
             return this.NotFound("User not found");
         }
 
-        var userDetailsViewModel = this._mapper.Map<UserDetailsViewModel>(user);
+        UserDetailsViewModel userDetailsViewModel = this._mapper.Map<UserDetailsViewModel>(user);
 
         return this.Ok(userDetailsViewModel);
     }
@@ -52,10 +52,10 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post(UserCreateViewModel userCreateViewModel)
     {
-        var user = this._mapper.Map<User>(userCreateViewModel);
+        User user = this._mapper.Map<User>(userCreateViewModel);
         await this._userRepository.AddUserAsync(user);
 
-        var userDetailsViewModel = this._mapper.Map<UserDetailsViewModel>(user);
+        UserDetailsViewModel userDetailsViewModel = this._mapper.Map<UserDetailsViewModel>(user);
 
         return this.Ok(userDetailsViewModel);
     }
@@ -63,10 +63,10 @@ public class UserController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Put(UserUpdateViewModel userUpdateViewModel)
     {
-        var user = this._mapper.Map<User>(userUpdateViewModel);
+        User user = this._mapper.Map<User>(userUpdateViewModel);
         await this._userRepository.UpdateUserAsync(user);
 
-        var userDetailsViewModel = this._mapper.Map<UserDetailsViewModel>(user);
+        UserDetailsViewModel userDetailsViewModel = this._mapper.Map<UserDetailsViewModel>(user);
 
         return this.Ok(userDetailsViewModel);
     }

@@ -1,11 +1,15 @@
+using Microsoft.Extensions.Options;
+
 using MongoDbApp;
 using MongoDbApp.Repositories;
 
 using StackExchange.Redis;
 
-using System.Globalization;
+using Microsoft.Extensions.Caching.Distributed;
 
-var builder = WebApplication.CreateBuilder(args);
+using MongoDB.Driver;
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
@@ -16,22 +20,29 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<MongoDbSettings>(mongoDbSettings => builder.Configuration.GetSection("MongoDbSettings").Bind(mongoDbSettings));
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>(serviceProvider =>
+{
+    MongoDbSettings mongoDbSettings = serviceProvider.GetService<IOptions<MongoDbSettings>>().Value;
+    MongoClient client = new MongoClient(mongoDbSettings.ConnectionString);
+    IMongoDatabase userDatabase = client.GetDatabase(mongoDbSettings.UserDatabaseName);
 
-//Configure other services up here
-var multiplexer = ConnectionMultiplexer.Connect("bpashkovskyi.redis.cache.windows.net:6380,password=FHfJ8zwNItRqK3ksuHHyEh4ufgZ6Z2lqAAzCaKXIujI=,ssl=True,abortConnect=False");
-builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+    IDistributedCache distributedCache = serviceProvider.GetService<IDistributedCache>();
+
+    return new UserRepository(userDatabase, distributedCache);
+
+});
 
 builder.Services.AddStackExchangeRedisCache(
     redisCacheOptions =>
     {
+        var redisSettings = builder.Configuration.GetSection("RedisSettings").Get<RedisSettings>();
         redisCacheOptions.ConfigurationOptions = new ConfigurationOptions
         {
             AllowAdmin = true,
             DefaultDatabase = 0,
             Ssl = true,
-            Password = "FHfJ8zwNItRqK3ksuHHyEh4ufgZ6Z2lqAAzCaKXIujI=",
-            EndPoints = { { "bpashkovskyi.redis.cache.windows.net", 6380 } }
+            Password = redisSettings.Password,
+            EndPoints = { { redisSettings.Host, redisSettings.Port } }
         };
     });
 
@@ -39,7 +50,7 @@ builder.Services.AddStackExchangeRedisCache(
 builder.Services.AddAutoMapper(typeof(UserMapperProfile).Assembly);
 
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
