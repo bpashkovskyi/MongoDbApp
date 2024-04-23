@@ -8,6 +8,7 @@ using MongoDB.Driver;
 
 using MongoDbApp.Web;
 using MongoDbApp.Web.Repositories;
+using MongoDbApp.Web.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,11 +25,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>(serviceProvider =>
 {
     var mongoDbSettings = serviceProvider.GetService<IOptions<MongoDbSettings>>().Value;
     var client = new MongoClient(mongoDbSettings.ConnectionString);
-    var userDatabase = client.GetDatabase(mongoDbSettings.UserDatabaseName);
+    var mongoDatabase = client.GetDatabase(mongoDbSettings.UserDatabaseName);
+    var userCollection = mongoDatabase.GetCollection<User>("Users");
 
     var distributedCache = serviceProvider.GetService<IDistributedCache>();
 
-    return new UserRepository(userDatabase, distributedCache);
+    return new UserRepository(userCollection, distributedCache);
 
 });
 

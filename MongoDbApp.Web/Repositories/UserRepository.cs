@@ -15,10 +15,10 @@ public class UserRepository : IUserRepository
     private readonly IDistributedCache distributedCache;
 
     public UserRepository(
-        IMongoDatabase mongoDatabase,
+        IMongoCollection<User> userCollection,
         IDistributedCache distributedCache)
     {
-        userCollection = mongoDatabase.GetCollection<User>("Users");
+        this.userCollection = userCollection;
         this.distributedCache = distributedCache;
     }
 
