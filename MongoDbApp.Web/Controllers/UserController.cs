@@ -24,12 +24,12 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<List<UserListViewModel>> Get()
+    public async Task<IActionResult> Get()
     {
         var users = await this.userRepository.GetAllUsersAsync();
         var usersListViewModels = this.mapper.Map<List<UserListViewModel>>(users);
 
-        return usersListViewModels;
+        return this.Ok(usersListViewModels);
     }
 
     [HttpGet("{id}")]

@@ -17,7 +17,7 @@ using MongoDbApp.Web.ViewModels;
 namespace MongoDbApp.IntegrationTests
 {
     [TestClass]
-    public class UserControllerTests
+    public class UserControllerTests : ControllerTestsBase
     {
         private readonly UserController userController;
 
@@ -41,6 +41,28 @@ namespace MongoDbApp.IntegrationTests
             this.userController = new UserController(userRepository, mapper);
         }
 
+        [TestMethod]
+        public async Task GetAllUserShouldSucceed()
+        {
+            // Arrange
+            var userCreateViewModel = new UserCreateViewModel
+            {
+                Email = "list test email",
+                Name = "list test name",
+                Role = "student"
+            };
+
+            GetOkResultModel<UserDetailsViewModel>(await this.userController.Post(userCreateViewModel));
+
+            // Act
+            var userListViewModels = GetOkResultModel<List<UserListViewModel>>(await this.userController.Get());
+            var userListViewModel = userListViewModels!.FirstOrDefault(u => u.Name == "list test name");
+
+
+            // Assert
+            Assert.IsNotNull(userListViewModel);
+        }
+
 
         [TestMethod]
         public async Task GetUserShouldSucceedIfUserWasFound()
@@ -55,7 +77,7 @@ namespace MongoDbApp.IntegrationTests
 
             var userDetailsModel = GetOkResultModel<UserDetailsViewModel>(await this.userController.Post(userCreateViewModel));
 
-            var userId = userDetailsModel.Id;
+            var userId = userDetailsModel!.Id;
 
             // Act
             var userDetailsModel2 = GetOkResultModel<UserDetailsViewModel>(await this.userController.Get(userId.ToString()));
@@ -72,23 +94,156 @@ namespace MongoDbApp.IntegrationTests
             var actionResult2 = await this.userController.Get(new ObjectId().ToString());
 
             var notFoundResult = actionResult2 as NotFoundObjectResult;
-            var errorMessage = notFoundResult.Value as string;
+            var errorMessage = notFoundResult!.Value as string;
 
             // Assert
             Assert.AreEqual("User not found", errorMessage);
         }
 
-        protected T GetOkResultModel<T>(IActionResult actionResult)
-            where T : class
+        [TestMethod]
+        public async Task PostUserShouldSucceed()
         {
+            // Arrange
+            var userCreateViewModel = new UserCreateViewModel
+            {
+                Email = "test email",
+                Name = "test name",
+                Role = "student"
+            };
 
-            Assert.IsInstanceOfType<OkObjectResult>(actionResult);
-            
-            var okObjectResult = (OkObjectResult)actionResult;
+            var userDetailsModel = GetOkResultModel<UserDetailsViewModel>(await this.userController.Post(userCreateViewModel));
 
-            Assert.IsInstanceOfType<T>(okObjectResult.Value);
+            var userId = userDetailsModel!.Id;
 
-            return okObjectResult.Value as T;
+            // Act
+            var userDetailsModel2 = GetOkResultModel<UserDetailsViewModel>(await this.userController.Get(userId.ToString()));
+
+
+            // Assert
+            Assert.IsNotNull(userDetailsModel2);
+        }
+
+        [TestMethod]
+        public async Task PutUserShouldSucceed()
+        {
+            // Arrange
+            var userCreateViewModel = new UserCreateViewModel
+            {
+                Email = "test email",
+                Name = "test name",
+                Role = "student"
+            };
+
+            var userDetailsModel = GetOkResultModel<UserDetailsViewModel>(await this.userController.Post(userCreateViewModel));
+
+            var userId = userDetailsModel!.Id;
+
+            var userUpdateViewModel = new UserUpdateViewModel
+            {
+                Id = userId.ToString(),
+                Email = "test email updated",
+                Name = "test name",
+                Role = "student"
+            };
+
+            // Act
+
+            await this.userController.Put(userUpdateViewModel);
+
+            var userDetailsModel2 = GetOkResultModel<UserDetailsViewModel>(await this.userController.Get(userId.ToString()));
+
+
+            // Assert
+            Assert.AreEqual("test email updated", userDetailsModel2.Email);
+        }
+
+        [TestMethod]
+        public async Task UpdateNameShouldSucceed()
+        {
+            // Arrange
+            var userCreateViewModel = new UserCreateViewModel
+            {
+                Email = "test email",
+                Name = "test name",
+                Role = "student"
+            };
+
+            var userDetailsModel = GetOkResultModel<UserDetailsViewModel>(await this.userController.Post(userCreateViewModel));
+
+            var userId = userDetailsModel!.Id;
+
+            var updateNameViewModel = new UserUpdateNameViewModel
+            {
+                Id = userId.ToString(),
+                Name = "test name updated",
+            };
+
+            // Act
+            await this.userController.UpdateName(updateNameViewModel);
+
+            var userDetailsModel2 = GetOkResultModel<UserDetailsViewModel>(await this.userController.Get(userId.ToString()));
+
+
+            // Assert
+            Assert.AreEqual("test name updated", userDetailsModel2!.Name);
+        }
+
+        [TestMethod]
+        public async Task UpdateRoleShouldSucceed()
+        {
+            // Arrange
+            var userCreateViewModel = new UserCreateViewModel
+            {
+                Email = "test email",
+                Name = "test name",
+                Role = "student"
+            };
+
+            var userDetailsModel = GetOkResultModel<UserDetailsViewModel>(await this.userController.Post(userCreateViewModel));
+
+            var userId = userDetailsModel!.Id;
+
+            var updateRoleViewModel = new UserUpdateRoleViewModel
+            {
+                Id = userId.ToString(),
+                Role = "student updated",
+            };
+
+            // Act
+            await this.userController.UpdateRole(updateRoleViewModel);
+
+            var userDetailsModel2 = GetOkResultModel<UserDetailsViewModel>(await this.userController.Get(userId.ToString()));
+
+
+            // Assert
+            Assert.AreEqual("student updated", userDetailsModel2!.Role);
+        }
+
+        [TestMethod]
+        public async Task DeleteShouldSucceed()
+        {
+            // Arrange
+            var userCreateViewModel = new UserCreateViewModel
+            {
+                Email = "test email",
+                Name = "test name",
+                Role = "student"
+            };
+
+            var userDetailsModel = GetOkResultModel<UserDetailsViewModel>(await this.userController.Post(userCreateViewModel));
+
+            var userId = userDetailsModel!.Id;
+
+            // Act
+            await this.userController.Delete(userId.ToString());
+
+            var actionResult2 = await this.userController.Get(new ObjectId().ToString());
+
+            var notFoundResult = actionResult2 as NotFoundObjectResult;
+            var errorMessage = notFoundResult!.Value as string;
+
+            // Assert
+            Assert.AreEqual("User not found", errorMessage);
         }
     }
 }
